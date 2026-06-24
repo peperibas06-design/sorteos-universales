@@ -1,0 +1,86 @@
+{% extends "admin_base.html" %}
+{% block title %}Historial de acciones — Admin Rifa{% endblock %}
+
+{% block content %}
+<section class="container" style="padding:46px 0;">
+
+  <h1 style="color:var(--light-text); margin-bottom:10px;">Historial de acciones</h1>
+  <p style="color:rgba(255,255,255,0.6); margin-bottom:30px;">Registro de todas las operaciones realizadas en el sistema (crear, editar, eliminar eventos, boletos, etc.)</p>
+
+  {% if history %}
+    <div class="panel" style="overflow-x: auto;">
+      <table style="width:100%; border-collapse:collapse; font-size:0.95rem;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--gold);">
+            <th style="padding:12px; text-align:left; color:var(--gold); font-weight:600;">Fecha</th>
+            <th style="padding:12px; text-align:left; color:var(--gold); font-weight:600;">Tipo de acción</th>
+            <th style="padding:12px; text-align:left; color:var(--gold); font-weight:600;">Entidad</th>
+            <th style="padding:12px; text-align:left; color:var(--gold); font-weight:600;">ID</th>
+            <th style="padding:12px; text-align:left; color:var(--gold); font-weight:600;">Detalles</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for action in history %}
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05); hover:background:rgba(255,255,255,0.02);">
+              <td style="padding:12px; color:var(--light-text);">
+                {{ action.created_at.split('T')[0] }}<br>
+                <span style="font-size:0.85rem; color:rgba(255,255,255,0.5);">{{ action.created_at.split('T')[1][:8] }}</span>
+              </td>
+              <td style="padding:12px;">
+                <span style="
+                  display: inline-block;
+                  padding: 4px 10px;
+                  border-radius: 6px;
+                  font-weight: 600;
+                  font-size: 0.85rem;
+                  {% if action.action_type == 'CREATE' %}
+                    background: rgba(76, 175, 80, 0.2);
+                    color: #4caf50;
+                  {% elif action.action_type == 'UPDATE' %}
+                    background: rgba(255, 193, 7, 0.2);
+                    color: #ffc107;
+                  {% elif action.action_type == 'DELETE' %}
+                    background: rgba(244, 67, 54, 0.2);
+                    color: #f44336;
+                  {% else %}
+                    background: rgba(33, 150, 243, 0.2);
+                    color: #2196f3;
+                  {% endif %}
+                ">
+                  {{ action.action_type }}
+                </span>
+              </td>
+              <td style="padding:12px; color:var(--light-text); text-transform:capitalize;">{{ action.entity_type }}</td>
+              <td style="padding:12px; color:rgba(255,255,255,0.7); font-family:'IBM Plex Mono', monospace;">
+                {{ action.entity_id or '—' }}
+              </td>
+              <td style="padding:12px; color:rgba(255,255,255,0.7); font-size:0.9rem;">
+                {% if action.changes %}
+                  <details>
+                    <summary style="cursor:pointer; color:var(--gold);">Ver detalles</summary>
+                    <pre style="background:rgba(0,0,0,0.3); padding:10px; border-radius:6px; margin-top:8px; font-size:0.85rem; color:rgba(255,255,255,0.8); overflow-x:auto;">{{ action.changes }}</pre>
+                  </details>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="panel" style="text-align:center; padding:40px;">
+      <p style="color:rgba(255,255,255,0.6); font-size:1.1rem;">No hay acciones registradas aún.</p>
+    </div>
+  {% endif %}
+
+  <div style="margin-top:30px; padding:20px; background:rgba(255,193,7,0.1); border-left:4px solid var(--gold); border-radius:6px;">
+    <p style="color:rgba(255,255,255,0.7); margin:0; font-size:0.95rem;">
+      <strong>💡 Nota:</strong> El historial de acciones se utiliza para implementar funcionalidad de deshacer/rehacer en futuras versiones. 
+      Actualmente se registran todas las operaciones realizadas en eventos, boletos y usuarios.
+    </p>
+  </div>
+
+</section>
+{% endblock %}

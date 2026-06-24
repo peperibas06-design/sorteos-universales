@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Comprar boleto — {{ event.name }}{% endblock %}
+
+{% block content %}
+<section class="container" style="padding:46px 0 80px;">
+  <div style="display:grid; grid-template-columns:1.1fr 1fr; gap:34px; align-items:start;">
+
+    <div>
+      <span class="eyebrow">Comprar boleto</span>
+      <h1 style="color:var(--light-text); font-size:2.2rem;">{{ event.name }}</h1>
+      {% if event.description %}<p>{{ event.description }}</p>{% endif %}
+
+      {% if event.event_image %}
+        <img src="{{ url_for('static', filename='uploads/' + event.event_image) }}" alt="{{ event.name }}"
+             style="border-radius:14px; margin-bottom:20px; max-height:260px; object-fit:cover; width:100%;">
+      {% endif %}
+
+      <div class="panel">
+        <div class="progress-label" style="margin-bottom:8px;">
+          <span>{{ event.tickets_sold }} vendidos</span>
+          <span>{{ event.max_tickets - event.tickets_sold }} disponibles de {{ event.max_tickets }}</span>
+        </div>
+        <div class="progress" style="background:rgba(255,255,255,0.08);">
+          <span style="width:{{ (event.tickets_sold / event.max_tickets * 100) if event.max_tickets else 0 }}%; background:var(--gold);"></span>
+        </div>
+      </div>
+
+      {% if error %}
+        <div class="alert alert-error" style="margin-top:20px;">{{ error }}</div>
+      {% endif %}
+    </div>
+
+    <form method="POST" class="panel" id="buy-form">
+      <div class="row">
+        <div class="field">
+          <label for="first_name">Nombre</label>
+          <input type="text" id="first_name" name="first_name" required>
+        </div>
+        <div class="field">
+          <label for="last_name">Apellido</label>
+          <input type="text" id="last_name" name="last_name" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="id_number">Carnet de identidad</label>
+          <input type="text" id="id_number" name="id_number" minlength="6" required>
+        </div>
+        <div class="field">
+          <label for="birthdate">Fecha de nacimiento</label>
+          <input type="date" id="birthdate" name="birthdate" required>
+          <div class="hint">Debés ser mayor de 18 años.</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="phone">Teléfono</label>
+          <input type="tel" id="phone" name="phone" required>
+        </div>
+        <div class="field">
+          <label for="email">Correo electrónico</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="quantity">Cantidad de boletos</label>
+          <input type="number" id="quantity" name="quantity" min="1" max="{{ max_quantity }}" value="1" required>
+        </div>
+        <div class="field">
+          <label for="coupon_code">Cupón de descuento (opcional)</label>
+          <input type="text" id="coupon_code" name="coupon_code" placeholder="Ej. PROMO10">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="custom_ticket_number">Número de boleto específico (opcional)</label>
+        <input type="text" id="custom_ticket_number" name="custom_ticket_number" placeholder="Dejalo vacío para asignar uno automáticamente">
+        <div class="hint">Si elegís un número específico, solo podés comprar 1 boleto.</div>
+      </div>
+
+      <div class="panel" style="background:var(--ink); border-style:dashed; margin:6px 0 22px;">
+        <div class="progress-label" style="font-size:0.82rem;">
+          <span>Precio por boleto</span><span>Bs {{ ticket_price }}</span>
+        </div>
+        <div class="progress-label" style="font-size:0.95rem; margin-top:6px; color:var(--light-text);">
+          <strong>Total estimado</strong><strong id="total-preview">Bs {{ ticket_price }}</strong>
+        </div>
+        <div class="hint">El descuento del cupón (si aplica) se calcula al confirmar la compra.</div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block">Confirmar compra</button>
+    </form>
+  </div>
+</section>
+
+<script>
+  const qty = document.getElementById('quantity');
+  const preview = document.getElementById('total-preview');
+  const price = {{ ticket_price }};
+  function updateTotal(){
+    const n = Math.max(1, parseInt(qty.value || '1', 10));
+    preview.textContent = 'Bs ' + (n * price);
+  }
+  qty.addEventListener('input', updateTotal);
+</script>
+{% endblock %}

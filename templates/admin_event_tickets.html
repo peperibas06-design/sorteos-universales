@@ -1,0 +1,43 @@
+{% extends "admin_base.html" %}
+{% set active_nav = 'dashboard' %}
+{% block title %}Boletos — {{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <div>
+    <span class="eyebrow">Boletos vendidos</span>
+    <h1 style="font-size:1.9rem;">{{ event.name }}</h1>
+  </div>
+  <div style="display:flex; gap:10px;">
+    <a href="{{ url_for('admin_export_event', event_id=event.id) }}" class="btn btn-ghost">Exportar a Excel</a>
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-ghost">← Volver</a>
+  </div>
+</div>
+
+<div class="panel">
+  {% if tickets %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>N°</th><th>Nombre</th><th>CI</th><th>Teléfono</th><th>Email</th><th>Cupón</th><th>Comprado</th></tr>
+        </thead>
+        <tbody>
+          {% for t in tickets %}
+            <tr>
+              <td>{{ '%03d'|format(t.event_ticket_number) }}</td>
+              <td>{{ t.first_name }} {{ t.last_name }}</td>
+              <td>{{ t.id_number or '—' }}</td>
+              <td>{{ t.phone }}</td>
+              <td>{{ t.email }}</td>
+              <td>{{ t.coupon_code or '—' }}</td>
+              <td>{{ t.created_at[:16] }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">Todavía no se vendió ningún boleto para este evento.</div>
+  {% endif %}
+</div>
+{% endblock %}

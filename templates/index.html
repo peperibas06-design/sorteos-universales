@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Rifa — Eventos activos{% endblock %}
+
+{% block content %}
+<header class="hero container">
+  <span class="eyebrow">Sorteo en curso</span>
+  <h1 style="color:var(--user-text);">Elegí tu evento.<br>Asegurá tu número.</h1>
+  <p class="lead">Comprá tu boleto en minutos, recibí tu número con código QR y mirá en vivo
+    cuántos boletos quedan disponibles para cada sorteo.</p>
+  {% if admin_note %}
+    <div class="alert alert-info" style="max-width:48ch;">{{ admin_note }}</div>
+  {% endif %}
+</header>
+
+<section class="container" style="padding-bottom:30px;">
+  <div class="section-title">
+    <h2 style="color:var(--light-text);">Eventos activos</h2>
+    <span class="badge badge-open">{{ active_events|length }} disponibles</span>
+  </div>
+
+  {% if active_events %}
+    <div class="event-grid">
+      {% for event in active_events %}
+        {% set remaining = event.max_tickets - event.tickets_sold %}
+        {% set pct = ((event.tickets_sold / event.max_tickets) * 100) if event.max_tickets else 0 %}
+        <a class="event-card" href="{{ url_for('buy_ticket', event_id=event.id) }}">
+          {% if event.event_image %}
+            <img class="media" src="{{ url_for('static', filename='uploads/' + event.event_image) }}" alt="{{ event.name }}">
+          {% else %}
+            <div class="media placeholder">🎟️ {{ event.name[:1]|upper }}</div>
+          {% endif %}
+          <div class="body">
+            <span class="date">{{ event.event_date or 'Fecha a confirmar' }}</span>
+            <h3>{{ event.name }}</h3>
+            {% if event.description %}<p>{{ event.description[:90] }}{% if event.description|length > 90 %}…{% endif %}</p>{% endif %}
+            <span class="price">Bs {{ ticket_price }} / boleto · {{ event.prize_count or 1 }} premio{{ 's' if (event.prize_count or 1) > 1 else '' }}</span>
+            <div class="progress"><span style="width:{{ pct }}%;"></span></div>
+            <div class="progress-label">
+              <span>{{ event.tickets_sold }} vendidos</span>
+              <span>{{ remaining }} disponibles</span>
+            </div>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">Todavía no hay eventos activos. Volvé pronto.</div>
+  {% endif %}
+</section>
+
+{% if closed_events %}
+<section class="container" style="padding-bottom:70px;">
+  <div class="section-title">
+    <h2 style="color:var(--light-text);">Eventos cerrados</h2>
+    <span class="badge badge-closed">{{ closed_events|length }} finalizados</span>
+  </div>
+  <div class="event-grid">
+    {% for event in closed_events %}
+      <div class="event-card" style="opacity:0.72;">
+        {% if event.event_image %}
+          <img class="media" src="{{ url_for('static', filename='uploads/' + event.event_image) }}" alt="{{ event.name }}">
+        {% else %}
+          <div class="media placeholder">🎟️ {{ event.name[:1]|upper }}</div>
+        {% endif %}
+        <div class="body">
+          <span class="date">{{ event.event_date or '' }}</span>
+          <h3>{{ event.name }}</h3>
+          <span class="badge badge-closed" style="align-self:flex-start;">Cerrado</span>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "admin_base.html" %}
+{% set active_nav = 'dashboard' %}
+{% block title %}Editar {{ event.name }} — Rifa Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <div>
+    <span class="eyebrow">Editar evento</span>
+    <h1 style="font-size:1.9rem;">{{ event.name }}</h1>
+  </div>
+  <a href="{{ url_for('admin_dashboard') }}" class="btn btn-ghost">← Volver al dashboard</a>
+</div>
+
+<form method="POST" class="panel" enctype="multipart/form-data">
+  <div class="row">
+    <div class="field">
+      <label for="max_tickets">Cantidad máxima de boletos</label>
+      <input type="number" id="max_tickets" name="max_tickets" value="{{ event.max_tickets }}" min="{{ event.tickets_sold }}" required>
+      <div class="hint">Ya se vendieron {{ event.tickets_sold }} boletos.</div>
+    </div>
+    <div class="field">
+      <label for="prize_count">Cantidad de premios</label>
+      <input type="number" id="prize_count" name="prize_count" value="{{ event.prize_count or 1 }}" min="1" required>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="description">Descripción</label>
+    <textarea id="description" name="description" rows="4">{{ event.description or '' }}</textarea>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for="event_image">Imagen del evento</label>
+      <input type="file" id="event_image" name="event_image" accept="image/*">
+      {% if event.event_image %}<img class="thumb-current" src="{{ url_for('static', filename='uploads/' + event.event_image) }}" alt="">{% endif %}
+    </div>
+    <div class="field">
+      <label for="prize_image">Imagen del premio</label>
+      <input type="file" id="prize_image" name="prize_image" accept="image/*">
+      {% if event.prize_image %}<img class="thumb-current" src="{{ url_for('static', filename='uploads/' + event.prize_image) }}" alt="">{% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label for="ticket_bg_image">Fondo del boleto</label>
+      <input type="file" id="ticket_bg_image" name="ticket_bg_image" accept="image/*">
+      {% if event.ticket_bg_image %}<img class="thumb-current" src="{{ url_for('static', filename='uploads/' + event.ticket_bg_image) }}" alt="">{% endif %}
+    </div>
+    <div class="field">
+      <label for="location_image">Imagen de ubicación</label>
+      <input type="file" id="location_image" name="location_image" accept="image/*">
+      {% if event.location_image %}<img class="thumb-current" src="{{ url_for('static', filename='uploads/' + event.location_image) }}" alt="">{% endif %}
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Guardar cambios</button>
+</form>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Admin — Rifa{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="admin-shell">
+  <aside class="admin-side">
+    <a href="{{ url_for('admin_dashboard') }}" class="brand"><span class="dot"></span> Rifa Admin</a>
+    <nav>
+      <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if active_nav == 'dashboard' }}">Dashboard</a>
+      <a href="{{ url_for('admin_coupons') }}" class="{{ 'active' if active_nav == 'coupons' }}">Cupones</a>
+      <a href="{{ url_for('admin_reports') }}" class="{{ 'active' if active_nav == 'reports' }}">Reportes</a>
+      <a href="{{ url_for('admin_history') }}" class="{{ 'active' if active_nav == 'history' }}">Historial</a>
+      <a href="{{ url_for('home') }}" target="_blank">Ver sitio público ↗</a>
+      <a href="{{ url_for('admin_logout') }}" style="margin-top:18px; color:var(--crimson);">Cerrar sesión</a>
+    </nav>
+  </aside>
+
+  <div class="admin-main">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for m in messages %}<div class="alert alert-error">{{ m }}</div>{% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</div>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

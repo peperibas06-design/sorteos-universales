@@ -1,0 +1,168 @@
+{% extends "admin_base.html" %}
+{% set active_nav = 'dashboard' %}
+{% block title %}Dashboard — Rifa Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <div>
+    <span class="eyebrow">Panel de control</span>
+    <h1 style="font-size:1.9rem;">Tus eventos</h1>
+  </div>
+  <a href="#nuevo-evento" class="btn btn-primary">+ Nuevo evento</a>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="num">{{ events|length }}</div>
+    <div class="label">Eventos creados</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ events|sum(attribute='tickets_sold') }}</div>
+    <div class="label">Boletos vendidos (total)</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ events|sum(attribute='max_tickets') - events|sum(attribute='tickets_sold') }}</div>
+    <div class="label">Boletos disponibles (total)</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ events|selectattr('closed', 'equalto', 0)|list|length }}</div>
+    <div class="label">Eventos activos</div>
+  </div>
+</div>
+
+<div class="panel" style="margin-top:24px;">
+  <h3>Ventas por evento</h3>
+  <div id="sales-chart"><p class="hint">Cargando…</p></div>
+</div>
+
+<div class="panel">
+  <div class="section-title"><h3 style="margin:0;">Eventos</h3></div>
+  {% if events %}
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Evento</th><th>Fecha</th><th>Vendidos</th><th>Estado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          {% for event in events %}
+            <tr>
+              <td>{{ event.name }}</td>
+              <td>{{ event.event_date or '—' }}</td>
+              <td>{{ event.tickets_sold }} / {{ event.max_tickets }}</td>
+              <td>
+                {% if event.closed %}
+                  <span class="badge badge-closed">Cerrado</span>
+                {% else %}
+                  <span class="badge badge-open">Activo</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <a class="btn btn-ghost btn-sm" href="{{ url_for('admin_edit_event', event_id=event.id) }}">Editar</a>
+                  <a class="btn btn-ghost btn-sm" href="{{ url_for('admin_raffle', event_id=event.id) }}">Sorteo</a>
+                  <a class="btn btn-ghost btn-sm" href="{{ url_for('admin_event_tickets', event_id=event.id) }}">Boletos</a>
+                  <a class="btn btn-ghost btn-sm" href="{{ url_for('admin_export_event', event_id=event.id) }}">Exportar</a>
+                  {% if not event.closed %}
+                    <form method="POST" action="{{ url_for('admin_close_event', event_id=event.id) }}" onsubmit="return confirm('¿Cerrar este evento? No se podrán vender más boletos.');">
+                      <button type="submit" class="btn btn-ghost btn-sm">Cerrar</button>
+                    </form>
+                  {% endif %}
+                  <form method="POST" action="{{ url_for('delete_event', event_id=event.id) }}" onsubmit="return confirm('Esto borrará el evento y todos sus boletos. ¿Continuar?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">Todavía no creaste ningún evento.</div>
+  {% endif %}
+</div>
+
+<div class="panel" id="nuevo-evento">
+  <h3>Crear nuevo evento</h3>
+  <form method="POST" action="{{ url_for('create_event') }}" enctype="multipart/form-data">
+    <div class="row">
+      <div class="field"><label for="name">Nombre del evento</label><input type="text" id="name" name="name" required></div>
+      <div class="field"><label for="event_date">Fecha</label><input type="text" id="event_date" name="event_date" placeholder="2026-12-31"></div>
+    </div>
+    <div class="field"><label for="description">Descripción</label><textarea id="description" name="description" rows="3"></textarea></div>
+    <div class="row">
+      <div class="field"><label for="max_tickets">Cantidad máxima de boletos</label><input type="number" id="max_tickets" name="max_tickets" value="100" min="1" required></div>
+      <div class="field"><label for="prize_count">Cantidad de premios</label><input type="number" id="prize_count" name="prize_count" value="1" min="1" required></div>
+    </div>
+    <div class="row">
+      <div class="field"><label for="event_image">Imagen del evento</label><input type="file" id="event_image" name="event_image" accept="image/*"></div>
+      <div class="field"><label for="prize_image">Imagen del premio</label><input type="file" id="prize_image" name="prize_image" accept="image/*"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label for="ticket_bg_image">Fondo del boleto</label><input type="file" id="ticket_bg_image" name="ticket_bg_image" accept="image/*"></div>
+      <div class="field"><label for="location_image">Imagen de ubicación</label><input type="file" id="location_image" name="location_image" accept="image/*"></div>
+    </div>
+    <button type="submit" class="btn btn-primary">Crear evento</button>
+  </form>
+</div>
+
+<div class="row">
+  <div class="panel">
+    <h3>Apariencia del sitio</h3>
+    <form method="POST" action="{{ url_for('admin_settings') }}" enctype="multipart/form-data">
+      <div class="field"><label for="page_text_color">Color de texto</label><input type="color" id="page_text_color" name="page_text_color" value="{{ settings.page_text_color }}"></div>
+      <div class="field"><label for="page_button_color">Color de botones</label><input type="color" id="page_button_color" name="page_button_color" value="{{ settings.page_button_color }}"></div>
+      <div class="field"><label for="page_button_text_color">Color de texto de botones</label><input type="color" id="page_button_text_color" name="page_button_text_color" value="{{ settings.page_button_text_color }}"></div>
+      <div class="field">
+        <label for="page_background">Imagen de fondo del sitio</label>
+        <input type="file" id="page_background" name="page_background" accept="image/*">
+        {% if settings.page_background %}<img class="thumb-current" src="{{ url_for('static', filename='uploads/' + settings.page_background) }}" alt="Fondo actual">{% endif %}
+      </div>
+      <button type="submit" class="btn btn-primary">Guardar apariencia</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <h3>Nota para visitantes</h3>
+    <form method="POST" action="{{ url_for('admin_notes') }}">
+      <div class="field">
+        <textarea name="content" rows="4" placeholder="Mensaje visible en la página principal">{{ admin_note }}</textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Guardar nota</button>
+    </form>
+
+    <h3 style="margin-top:26px;">QR por defecto</h3>
+    <form method="POST" action="{{ url_for('admin_upload_qr') }}" enctype="multipart/form-data">
+      <div class="field">
+        <input type="file" id="qrfile" name="qrfile" accept="image/*">
+        {% if default_qr %}<img class="thumb-current" src="{{ url_for('static', filename='uploads/' + default_qr) }}" alt="QR actual">{% endif %}
+      </div>
+      <button type="submit" class="btn btn-primary">Guardar QR</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+fetch("{{ url_for('admin_sales_data') }}")
+  .then(r => r.json())
+  .then(data => {
+    const box = document.getElementById('sales-chart');
+    if (!data.labels.length) { box.innerHTML = '<p class="hint">Todavía no hay datos de ventas.</p>'; return; }
+    box.innerHTML = '';
+    data.labels.forEach((label, i) => {
+      const sold = data.sold[i], remaining = data.remaining[i];
+      const total = sold + remaining || 1;
+      const pct = Math.round((sold / total) * 100);
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+      row.innerHTML = `<span class="name">${label}</span>
+        <span class="bar-track"><span class="bar-fill" style="width:${pct}%;"></span></span>
+        <span>${sold}/${total}</span>`;
+      box.appendChild(row);
+    });
+  })
+  .catch(() => { document.getElementById('sales-chart').innerHTML = '<p class="hint">No se pudo cargar el gráfico.</p>'; });
+</script>
+{% endblock %}

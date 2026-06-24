@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Boletos agotados — {{ event_name }}{% endblock %}
+
+{% block content %}
+<section class="container" style="padding:90px 0; text-align:center;">
+  <div class="panel" style="max-width:520px; margin:0 auto;">
+    <span class="badge badge-closed" style="margin-bottom:18px;">Sin disponibilidad</span>
+    <h1 style="font-size:2rem;">{{ event_name }}</h1>
+    <p>Se vendieron los {{ max_tickets }} boletos disponibles para este evento, o el sorteo ya fue cerrado.
+      Seguí atento a nuestros próximos eventos.</p>
+    <a href="{{ url_for('home') }}" class="btn btn-primary">Ver otros eventos</a>
+  </div>
+</section>
+{% endblock %}

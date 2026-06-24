@@ -1,0 +1,66 @@
+{% extends "admin_base.html" %}
+{% set active_nav = 'reports' %}
+{% block title %}Reportes — Rifa Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <div>
+    <span class="eyebrow">Visión general</span>
+    <h1 style="font-size:1.9rem;">Reportes</h1>
+  </div>
+</div>
+
+<div class="stat-grid">
+  <div class="stat-card"><div class="num">{{ summary.total_tickets or 0 }}</div><div class="label">Boletos vendidos</div></div>
+  <div class="stat-card"><div class="num">{{ summary.unique_emails or 0 }}</div><div class="label">Compradores únicos</div></div>
+  <div class="stat-card"><div class="num">{{ summary.coupon_tickets or 0 }}</div><div class="label">Boletos con cupón</div></div>
+  <div class="stat-card"><div class="num">{{ summary.total_raffles or 0 }}</div><div class="label">Sorteos registrados</div></div>
+</div>
+
+<div class="panel">
+  <h3>Por evento</h3>
+  {% if events_report %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Evento</th><th>Vendidos</th><th>Cupo</th><th>Compradores únicos</th><th>Con cupón</th></tr></thead>
+        <tbody>
+          {% for e in events_report %}
+            <tr>
+              <td>{{ e.name }}</td>
+              <td>{{ e.tickets_sold }}</td>
+              <td>{{ e.max_tickets }}</td>
+              <td>{{ e.unique_buyers or 0 }}</td>
+              <td>{{ e.coupon_count or 0 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">Sin datos todavía.</div>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <h3>Por cupón</h3>
+  {% if coupons_report %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Código</th><th>Descuento</th><th>Veces usado</th><th>Usos restantes</th></tr></thead>
+        <tbody>
+          {% for c in coupons_report %}
+            <tr>
+              <td><span style="font-family:var(--mono);">{{ c.code }}</span></td>
+              <td>{{ c.discount_percent }}%</td>
+              <td>{{ c.used }}</td>
+              <td>{{ c.uses_remaining }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">Todavía no se usó ningún cupón.</div>
+  {% endif %}
+</div>
+{% endblock %}

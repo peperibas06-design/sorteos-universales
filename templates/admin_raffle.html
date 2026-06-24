@@ -1,0 +1,47 @@
+{% extends "admin_base.html" %}
+{% set active_nav = 'dashboard' %}
+{% block title %}Sorteo — {{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <div>
+    <span class="eyebrow">Sorteo</span>
+    <h1 style="font-size:1.9rem;">{{ event.name }}</h1>
+  </div>
+  <a href="{{ url_for('admin_dashboard') }}" class="btn btn-ghost">← Volver al dashboard</a>
+</div>
+
+{% if raffle %}
+  <div class="panel" style="border-color:var(--gold); background:linear-gradient(135deg, rgba(242,183,5,0.12), var(--ink-soft));">
+    <span class="eyebrow">Ganador</span>
+    <h2 style="font-size:2rem;">{{ raffle.winner_name }}</h2>
+    <p>Boleto N° <strong style="color:var(--gold);">{{ '%03d'|format(raffle.ticket_number) }}</strong> · sorteado el {{ raffle.drawn_at[:16] }}</p>
+  </div>
+{% endif %}
+
+<div class="panel">
+  <div class="section-title">
+    <h3 style="margin:0;">{{ tickets|length }} boletos participando</h3>
+    {% if tickets %}
+      <form method="POST" onsubmit="return confirm('¿Sortear un ganador entre todos los boletos vendidos?');">
+        <button type="submit" class="btn btn-primary">{{ 'Sortear de nuevo' if raffle else 'Sortear ganador' }}</button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if tickets %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Boleto</th><th>Nombre</th></tr></thead>
+        <tbody>
+          {% for t in tickets %}
+            <tr><td>{{ '%03d'|format(t.event_ticket_number) }}</td><td>{{ t.first_name }} {{ t.last_name }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">Todavía no se vendió ningún boleto para este evento.</div>
+  {% endif %}
+</div>
+{% endblock %}

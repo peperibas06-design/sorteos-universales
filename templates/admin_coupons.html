@@ -1,0 +1,61 @@
+{% extends "admin_base.html" %}
+{% set active_nav = 'coupons' %}
+{% block title %}Cupones — Rifa Admin{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+  <div>
+    <span class="eyebrow">Descuentos</span>
+    <h1 style="font-size:1.9rem;">Cupones</h1>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>Crear cupón</h3>
+  <form method="POST">
+    <div class="row">
+      <div class="field"><label for="code">Código</label><input type="text" id="code" name="code" placeholder="PROMO10" required></div>
+      <div class="field"><label for="discount_percent">Descuento (%)</label><input type="number" id="discount_percent" name="discount_percent" min="1" max="100" value="10" required></div>
+    </div>
+    <div class="row">
+      <div class="field"><label for="uses_remaining">Usos disponibles</label><input type="number" id="uses_remaining" name="uses_remaining" min="1" value="1" required></div>
+      <div class="field">
+        <label for="event_id">Evento (opcional)</label>
+        <select id="event_id" name="event_id">
+          <option value="">Válido para todos los eventos</option>
+          {% for e in events %}<option value="{{ e.id }}">{{ e.name }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Crear cupón</button>
+  </form>
+</div>
+
+<div class="panel">
+  <h3>Cupones existentes</h3>
+  {% if coupons %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Código</th><th>Descuento</th><th>Usos restantes</th><th>Evento</th><th></th></tr></thead>
+        <tbody>
+          {% for c in coupons %}
+            <tr>
+              <td><span style="font-family:var(--mono);">{{ c.code }}</span></td>
+              <td>{{ c.discount_percent }}%</td>
+              <td>{{ c.uses_remaining }}</td>
+              <td>{{ c.event_id or 'Todos' }}</td>
+              <td>
+                <form method="POST" action="{{ url_for('admin_delete_coupon', coupon_id=c.id) }}" onsubmit="return confirm('¿Eliminar este cupón?');">
+                  <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">Todavía no creaste ningún cupón.</div>
+  {% endif %}
+</div>
+{% endblock %}

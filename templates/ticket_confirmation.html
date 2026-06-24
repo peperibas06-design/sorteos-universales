@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}¡Compra confirmada! — {{ event.name }}{% endblock %}
+
+{% block content %}
+<section class="container" style="padding:50px 0 80px;">
+  <span class="eyebrow">Compra confirmada</span>
+  <h1 style="color:var(--light-text);">¡Tus boletos están listos!</h1>
+  <p class="lead">Guardá esta página o descargá cada QR — lo vas a necesitar el día del sorteo.</p>
+
+  <div class="panel" style="display:flex; flex-wrap:wrap; gap:24px; justify-content:space-between; margin-bottom:30px;">
+    <div>
+      <div class="progress-label"><span>Evento</span></div>
+      <h3 style="margin-top:4px;">{{ event.name }}</h3>
+    </div>
+    <div>
+      <div class="progress-label"><span>Subtotal</span></div>
+      <h3 style="margin-top:4px;">Bs {{ subtotal }}</h3>
+    </div>
+    {% if discount_percent %}
+    <div>
+      <div class="progress-label"><span>Descuento</span></div>
+      <h3 style="margin-top:4px; color:var(--gold);">-{{ discount_percent }}%</h3>
+    </div>
+    {% endif %}
+    <div>
+      <div class="progress-label"><span>Total pagado</span></div>
+      <h3 style="margin-top:4px; color:var(--gold);">Bs {{ total_price }}</h3>
+    </div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:26px;">
+    {% for t in tickets %}
+      <div class="ticket">
+        <div class="ticket-main">
+          <span class="ticket-eyebrow">Boleto digital</span>
+          <h2 class="ticket-title">{{ event.name }}</h2>
+          <div class="ticket-meta">
+            <span><strong>{{ t.first_name }} {{ t.last_name }}</strong></span>
+            <span>Tel: {{ t.phone }}</span>
+            <span>{{ event.event_date or '' }}</span>
+          </div>
+        </div>
+        <div class="ticket-stub">
+          <span class="ticket-number-label">Boleto N°</span>
+          <span class="ticket-number">{{ '%03d'|format(t.event_ticket_number) }}</span>
+          <a href="{{ url_for('download_qr', ticket_number=t.ticket_number, event_id=event.id) }}" class="btn btn-ghost btn-sm" style="border-color:var(--ink-text); color:var(--ink-text); margin-top:8px;">Descargar QR</a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div style="margin-top:36px; display:flex; gap:14px; flex-wrap:wrap;">
+    <a href="{{ url_for('home') }}" class="btn btn-ghost">Volver a eventos</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Rifa — boletos digitales{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block extra_head %}{% endblock %}
+</head>
+<body style="--user-text:{{ site_settings.page_text_color }};--user-btn-bg:{{ site_settings.page_button_color }};--user-btn-text:{{ site_settings.page_button_text_color }};{% if site_settings.page_background %}background-image:linear-gradient(180deg, rgba(20,24,43,0.88), rgba(20,24,43,0.96)), url('{{ url_for('static', filename='uploads/' + site_settings.page_background) }}');background-size:cover;background-position:center;background-attachment:fixed;{% endif %}">
+
+<nav class="site-nav">
+  <div class="bar">
+    <a href="{{ url_for('home') }}" class="brand"><span class="dot"></span> Rifa</a>
+    <div class="nav-links">
+      <a href="{{ url_for('home') }}">Eventos</a>
+      <a href="{{ url_for('register_user') }}">Registrarse</a>
+      <a href="{{ url_for('admin_login') }}">Admin</a>
+    </div>
+  </div>
+</nav>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="container" style="padding-top:22px;">
+      {% for m in messages %}
+        <div class="alert alert-error">{{ m }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container">© {{ current_year }} Rifa · Boletos digitales con verificación por QR.</div>
+</footer>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>
