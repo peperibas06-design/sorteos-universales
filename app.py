@@ -29,9 +29,23 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    # Si la página está corriendo en Render (internet), usa Supabase (PostgreSQL)
+    if os.environ.get('DATABASE_URL'):
+        import psycopg2
+        url = os.environ.get('DATABASE_URL')
+        # Cambiamos postgres:// por postgresql:// si Render da el formato antiguo
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        conn = psycopg2.connect(url)
+        # Esto es para que funcione igual que sqlite3.Row y no rompa tus vistas
+        conn.cursor_factory = psycopg2.extras.DictCursor if hasattr(psycopg2, 'extras') else None
+        return conn
+    else:
+        # Si estás en tu computadora local, sigue usando tu archivo tickets.db de siempre
+        import sqlite3
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        return conn
 
 
 def init_db():
