@@ -375,19 +375,28 @@ def admin_required(func):
 
 @app.route('/')
 def home():
-    conn = get_db()
-    active_events = conn.execute('SELECT * FROM events WHERE closed = 0 ORDER BY event_date').fetchall()
-    closed_events = conn.execute('SELECT * FROM events WHERE closed = 1 ORDER BY event_date DESC').fetchall()
-    conn.close()
-    settings = {
+     conn = get_db()
+     cursor = conn.cursor()
+    
+     # Consulta para eventos activos
+     cursor.execute('SELECT * FROM events WHERE closed = 0 ORDER BY event_date')
+     active_events = cursor.fetchall()
+    
+     # Consulta para eventos cerrados (Aquí usamos el cursor también)
+     cursor.execute('SELECT * FROM events WHERE closed = 1 ORDER BY event_date DESC')
+     closed_events = cursor.fetchall()
+    
+     cursor.close()
+     conn.close()
+     settings = {
         'page_text_color': get_setting('page_text_color', '#333333'),
         'page_button_color': get_setting('page_button_color', '#007bff'),
         'page_button_text_color': get_setting('page_button_text_color', '#ffffff'),
         'page_background': get_setting('page_background', ''),
     }
-    admin_note = get_setting('admin_note', '')
-    default_qr = get_setting('default_qr', '')
-    return render_template('index.html', active_events=active_events, closed_events=closed_events, settings=settings, admin_note=admin_note, default_qr=default_qr, ticket_price=TICKET_PRICE)
+     admin_note = get_setting('admin_note', '')
+     default_qr = get_setting('default_qr', '')
+     return render_template('index.html', active_events=active_events, closed_events=closed_events, settings=settings, admin_note=admin_note, default_qr=default_qr, ticket_price=TICKET_PRICE)
 
 
 @app.route('/event/<int:event_id>/buy', methods=['GET', 'POST'])
