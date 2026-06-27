@@ -17,7 +17,7 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 DB_PATH = os.path.join(BASE_DIR, 'tickets.db')
-TICKET_PRICE = 20
+TICKET_PRICE = 10
 MAX_QUANTITY = 50
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 ADMIN_USER = os.environ.get('ADMIN_USER', 'adm')
